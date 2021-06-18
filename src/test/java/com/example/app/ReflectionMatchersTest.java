@@ -12,15 +12,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.junit.jupiter.api.Test; 
+import org.junit.jupiter.api.Test;
 import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
+
 /**
  * https://stackoverflow.com/a/29793460
  * https://www.petrikainulainen.net/programming/testing/junit-5-tutorial-writing-assertions-with-hamcrest/
  * https://www.vogella.com/tutorials/Mockito/article.html
- * 
- * */
- class ReflectionMatchersTest {
+ * https://www.baeldung.com/hamcrest-bean-matchers
+ */
+class ReflectionMatchersTest {
 
     public class Person {
         LocalDateTime timestamp;
@@ -50,19 +51,27 @@ import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
     }
 
     @Test
-    void shouldContainSameFieldsValues() {
+    void shouldContainSameFieldsValuesIgnoreTimeStamp() {
         Person expected = new Person("Neil", 20);
         Person actual = new Person("Neil", 20);
-        assertFalse(new ReflectionEquals(expected).matches(actual));//timestamp mismatch
+
+        // Timestamp does not match
+        assertFalse(new ReflectionEquals(expected).matches(actual));
+
+        // Ignores timestamp
         assertTrue(new ReflectionEquals(expected, "timestamp").matches(actual));
 
-        assertThat(actual, samePropertyValuesAs(expected)); //Needs a public class/constructor
-        //TODO https://www.vogella.com/tutorials/Mockito/article.html bean matcher didn't work 
+        // This needs public constructors and accesor methods
+        assertThat(actual, samePropertyValuesAs(expected));
     }
+
     @Test
     void shouldContainFields() {
         Person person = new Person("Neil", 20);
-        assertThat(person, hasProperty("name", equalTo("Neil"))); //You need a getter in POJO & //Needs a public class/constructor
-        //https://www.baeldung.com/hamcrest-bean-matchers
+
+        // You need a getter in POJO
+        // Needs a public class/constructor even for inner class
+        assertThat(person, hasProperty("name", equalTo("Neil")));
+
     }
 }
